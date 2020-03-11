@@ -1,31 +1,17 @@
-name: ci
+name: CI
 
-on: pull_request
+on: [push]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
-
+    
     steps:
-      - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.0.0 
-      - name: Setup node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Check tests
-        run: npm test
-
-      - name: Deploy
-      
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "pet-sao-joao" 
-          heroku_email: "renan.baldo@sou.unifeob.edu.br"
-          branch: "master" 
-          dontuseforce: false 
-          usedocker: false 
+    - uses: actions/checkout@v1
+    - name: Run a one-line script
+      run: echo Hello, world!
+    - name: Run a multi-line script
+      run: |
+        echo Add other actions to build,
+        echo test, and deploy your project.
