@@ -19,9 +19,24 @@ jobs:
       - name: Check tests
         run: npm test
 
-      - name: Add remote origin
-        run: |
-         git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
-      - name: Deploy to Heroku
-        run: |
-         git push heroku HEAD:master -f
+      - name: Deploy
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
+         env: 
+         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+  steps:
+     - name: Checkout
+       uses: actions/checkout@v1
+
+     - name: Set QA Environment
+       run: echo "::set-env name=ENVIRONMENT::qa"
+
+     - name: Set Production Environment
+       if: github.ref == 'refs/heads/master'
+       run: echo "::set-env name=ENVIRONMENT::prod"
+
+     - name: Push to Heroku
+       run: git push --force https://heroku:$HEROKU_API_KEY@git.heroku.com/my-app-name-$ENVIRONMENT.git $GITHUB_SHA:master
+
+     - name: Run Database Migrations
+       run: heroku run knex migrate:latest --app my-app-name-$ENVIRONMENT
